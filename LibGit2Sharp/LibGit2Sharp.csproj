@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LibGit2Sharp</RootNamespace>
     <AssemblyName>LibGit2Sharp</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -23,7 +23,6 @@
     <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\LibGit2Sharp.xml</DocumentationFile>
@@ -36,7 +35,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\LibGit2Sharp.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
@@ -48,6 +46,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Threading">
+      <HintPath>..\packages\TaskParallelLibrary.1.0.2856.0\lib\Net35\System.Threading.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AfterRebaseStepInfo.cs" />
@@ -391,6 +392,11 @@
     <Compile Include="IDiffResult.cs" />
     <Compile Include="Core\GitCredential.cs" />
     <Compile Include="Core\GitCredentialUserpass.cs" />
+    <Compile Include="net35\System\ITuple.cs" />
+    <Compile Include="net35\System\Tuple2.cs" />
+    <Compile Include="net35\System\Collections\IStructuralComparable.cs" />
+    <Compile Include="net35\System\Collections\IStructuralEquatable.cs" />
+    <Compile Include="net35\Ext.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="CustomDictionary.xml" />
@@ -423,4 +429,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="net35\" />
+    <Folder Include="net35\System\" />
+    <Folder Include="net35\System\Collections\" />
+  </ItemGroup>
 </Project>

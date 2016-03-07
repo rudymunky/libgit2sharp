@@ -8,8 +8,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
+using net35.System;
 
 // ReSharper disable InconsistentNaming
+
 namespace LibGit2Sharp.Core
 {
     internal class Proxy
@@ -2293,7 +2295,7 @@ namespace LibGit2Sharp.Core
                     directRefs.Add(name, new DirectReference(name, repository, remoteHead.Oid));
                 }
 
-                currentHead = IntPtr.Add(currentHead, IntPtr.Size);
+                currentHead = new IntPtr(currentHead.ToInt64() + IntPtr.Size);
             }
 
             for (int i = 0; i < symRefs.Count; i++)

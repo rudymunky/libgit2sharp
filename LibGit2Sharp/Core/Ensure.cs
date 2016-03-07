@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using net35;
 
 namespace LibGit2Sharp.Core
 {
@@ -49,7 +50,7 @@ namespace LibGit2Sharp.Core
         {
             ArgumentNotNull(argumentValue, argumentName);
 
-            if (String.IsNullOrWhiteSpace (argumentValue))
+            if (Ext.IsNullOrWhiteSpace (argumentValue))
             {
                 throw new ArgumentException("String cannot be empty", argumentName);
             }

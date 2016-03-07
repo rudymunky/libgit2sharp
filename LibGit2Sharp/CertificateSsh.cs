@@ -1,6 +1,7 @@
 ﻿using LibGit2Sharp.Core;
 using System;
 using System.Runtime.InteropServices;
+using net35;
 
 namespace LibGit2Sharp
 {

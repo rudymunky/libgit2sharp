@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
 using LibGit2Sharp.Handlers;
+using net35;
+using net35.System;
 
 namespace LibGit2Sharp
 {
@@ -157,7 +159,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNull(path, "path");
 
-            if (string.IsNullOrWhiteSpace(path))
+            if (Ext.IsNullOrWhiteSpace(path))
             {
                 return false;
             }

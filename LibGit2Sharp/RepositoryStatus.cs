@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using net35;
 
 namespace LibGit2Sharp
 {

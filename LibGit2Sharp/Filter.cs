@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using LibGit2Sharp.Core;
+using net35;
 
 namespace LibGit2Sharp
 {
@@ -35,7 +36,7 @@ namespace LibGit2Sharp
 
             this.name = name;
             this.attributes = attributes;
-            var attributesAsString = string.Join(",", this.attributes.Select(attr => attr.FilterDefinition));
+            var attributesAsString = string.Join(",", this.attributes.Select(attr => attr.FilterDefinition).ToArray());
 
             gitFilter = new GitFilter
             {

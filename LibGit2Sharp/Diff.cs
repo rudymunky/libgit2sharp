@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Handles;
+using net35;
 
 namespace LibGit2Sharp
 {
@@ -114,7 +115,7 @@ namespace LibGit2Sharp
             if (!ChangesBuilders.TryGetValue(typeof(T), out builder))
             {
                 throw new LibGit2SharpException("User-defined types passed to Compare are not supported. Supported values are: {0}",
-                    string.Join(", ", ChangesBuilders.Keys.Select(x => x.Name)));
+                    string.Join(", ", ChangesBuilders.Keys.Select(x => x.Name).ToArray()));
             }
 
             return (T)builder(diff);

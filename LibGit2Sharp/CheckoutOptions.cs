@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp.Core;
 using LibGit2Sharp.Handlers;
+using net35;
 
 namespace LibGit2Sharp
 {

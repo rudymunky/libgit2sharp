@@ -1,3 +1,5 @@
+using net35;
+
 namespace LibGit2Sharp.Core
 {
     internal static class GitDiffExtensions
