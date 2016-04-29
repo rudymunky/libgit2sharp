@@ -94,7 +94,7 @@ namespace LibGit2Sharp.Tests
                     dummy, master9);
 
                 repo.CreateBranch("master", master10);
-                repo.Checkout("master", new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force });
+                Commands.Checkout(repo, "master", new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force });
 
                 // Test --date-order.
                 var timeHistory = repo.Commits.QueryBy(path,
@@ -152,7 +152,7 @@ namespace LibGit2Sharp.Tests
 
                 // Move the first file to a new directory.
                 var newPath1 = Path.Combine(SubFolderPath1, path1);
-                repo.Move(path1, newPath1);
+                Commands.Move(repo, path1, newPath1);
                 var commit3 = repo.Commit("Moved " + path1 + " to " + newPath1,
                     Constants.Signature, Constants.Signature);
 
@@ -365,7 +365,7 @@ namespace LibGit2Sharp.Tests
             string message = null)
         {
             Touch(repoPath, path, text);
-            repo.Stage(path);
+            Commands.Stage(repo, path);
 
             var commitSignature = GetNextSignature();
             return repo.Commit(message ?? "Changed " + path, commitSignature, commitSignature);

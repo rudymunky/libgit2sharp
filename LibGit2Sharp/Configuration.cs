@@ -19,8 +19,9 @@ namespace LibGit2Sharp
         private readonly FilePath globalConfigPath;
         private readonly FilePath xdgConfigPath;
         private readonly FilePath systemConfigPath;
+        private readonly FilePath programDataConfigPath;
 
-        private ConfigurationSafeHandle configHandle;
+        private ConfigurationHandle configHandle;
 
         /// <summary>
         /// Needed for mocking purposes.
@@ -43,6 +44,7 @@ namespace LibGit2Sharp
             globalConfigPath = globalConfigurationFileLocation ?? Proxy.git_config_find_global();
             xdgConfigPath = xdgConfigurationFileLocation ?? Proxy.git_config_find_xdg();
             systemConfigPath = systemConfigurationFileLocation ?? Proxy.git_config_find_system();
+            programDataConfigPath = Proxy.git_config_find_programdata();
 
             Init(repository);
         }
@@ -80,6 +82,11 @@ namespace LibGit2Sharp
             if (systemConfigPath != null)
             {
                 Proxy.git_config_add_file_ondisk(configHandle, systemConfigPath, ConfigurationLevel.System);
+            }
+
+            if (programDataConfigPath != null)
+            {
+                Proxy.git_config_add_file_ondisk(configHandle, programDataConfigPath, ConfigurationLevel.ProgramData);
             }
         }
 
@@ -200,8 +207,8 @@ namespace LibGit2Sharp
         /// </summary>
         public virtual bool HasConfig(ConfigurationLevel level)
         {
-            using (ConfigurationSafeHandle snapshot = Snapshot())
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
+            using (ConfigurationHandle snapshot = Snapshot())
+            using (ConfigurationHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 return handle != null;
             }
@@ -239,7 +246,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 Proxy.git_config_delete(h, key);
             }
@@ -249,7 +256,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 Proxy.git_config_delete_multivar(h, key);
             }
@@ -354,7 +361,7 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle snapshot = Snapshot())
+            using (ConfigurationHandle snapshot = Snapshot())
             {
                 return Proxy.git_config_get_entry<T>(snapshot, key);
             }
@@ -385,8 +392,8 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle snapshot = Snapshot())
-            using (ConfigurationSafeHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
+            using (ConfigurationHandle snapshot = Snapshot())
+            using (ConfigurationHandle handle = RetrieveConfigurationHandle(level, false, snapshot))
             {
                 if (handle == null)
                 {
@@ -615,7 +622,7 @@ namespace LibGit2Sharp
             Ensure.ArgumentNotNull(value, "value");
             Ensure.ArgumentNotNullOrEmptyString(key, "key");
 
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, configHandle))
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, configHandle))
             {
                 if (!configurationTypedUpdater.ContainsKey(typeof(T)))
                 {
@@ -646,16 +653,16 @@ namespace LibGit2Sharp
         {
             Ensure.ArgumentNotNullOrEmptyString(regexp, "regexp");
 
-            using (ConfigurationSafeHandle snapshot = Snapshot())
-            using (ConfigurationSafeHandle h = RetrieveConfigurationHandle(level, true, snapshot))
+            using (ConfigurationHandle snapshot = Snapshot())
+            using (ConfigurationHandle h = RetrieveConfigurationHandle(level, true, snapshot))
             {
-                return Proxy.git_config_iterator_glob(h, regexp, BuildConfigEntry).ToList();
+                return Proxy.git_config_iterator_glob(h, regexp).ToList();
             }
         }
 
-        private ConfigurationSafeHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound, ConfigurationSafeHandle fromHandle)
+        private ConfigurationHandle RetrieveConfigurationHandle(ConfigurationLevel level, bool throwIfStoreHasNotBeenFound, ConfigurationHandle fromHandle)
         {
-            ConfigurationSafeHandle handle = null;
+            ConfigurationHandle handle = null;
             if (fromHandle != null)
             {
                 handle = Proxy.git_config_open_level(fromHandle, level);
@@ -670,12 +677,12 @@ namespace LibGit2Sharp
             return handle;
         }
 
-        private static Action<string, object, ConfigurationSafeHandle> GetUpdater<T>(Action<ConfigurationSafeHandle, string, T> setter)
+        private static Action<string, object, ConfigurationHandle> GetUpdater<T>(Action<ConfigurationHandle, string, T> setter)
         {
             return (key, val, handle) => setter(handle, key, (T)val);
         }
 
-        private readonly static IDictionary<Type, Action<string, object, ConfigurationSafeHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationSafeHandle>>
+        private readonly static IDictionary<Type, Action<string, object, ConfigurationHandle>> configurationTypedUpdater = new Dictionary<Type, Action<string, object, ConfigurationHandle>>
         {
             { typeof(int), GetUpdater<int>(Proxy.git_config_set_int32) },
             { typeof(long), GetUpdater<long>(Proxy.git_config_set_int64) },
@@ -702,13 +709,12 @@ namespace LibGit2Sharp
             return Proxy.git_config_foreach(configHandle, BuildConfigEntry);
         }
 
-        private static ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
+        internal static unsafe ConfigurationEntry<string> BuildConfigEntry(IntPtr entryPtr)
         {
-            var entry = entryPtr.MarshalAs<GitConfigEntry>();
-
-            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry.namePtr),
-                                                  LaxUtf8Marshaler.FromNative(entry.valuePtr),
-                                                  (ConfigurationLevel)entry.level);
+            var entry = (GitConfigEntry*)entryPtr.ToPointer();
+            return new ConfigurationEntry<string>(LaxUtf8Marshaler.FromNative(entry->namePtr),
+                                                  LaxUtf8Marshaler.FromNative(entry->valuePtr),
+                                                  (ConfigurationLevel)entry->level);
         }
 
         /// <summary>
@@ -749,9 +755,33 @@ namespace LibGit2Sharp
             return signature;
         }
 
-        private ConfigurationSafeHandle Snapshot()
+        private ConfigurationHandle Snapshot()
         {
             return Proxy.git_config_snapshot(configHandle);
+        }
+
+        /// <summary>
+        /// Perform a series of actions within a transaction.
+        ///
+        /// The configuration will be locked during this function and the changes will be committed at the end. These
+        /// changes will not be visible in the configuration until the end of this method.
+        ///
+        /// If the action throws an exception, the changes will be rolled back.
+        /// </summary>
+        /// <param name="action">The code to run under the transaction</param>
+        public virtual unsafe void WithinTransaction(Action action)
+        {
+            IntPtr txn = IntPtr.Zero;
+            try
+            {
+                txn = Proxy.git_config_lock(configHandle);
+                action();
+                Proxy.git_transaction_commit(txn);
+            }
+            finally
+            {
+                Proxy.git_transaction_free(txn);
+            }
         }
     }
 }

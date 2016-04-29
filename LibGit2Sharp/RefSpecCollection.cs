@@ -15,8 +15,11 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpecCollection : IEnumerable<RefSpec>
     {
+        // These are here to keep the pointer alive
+        #pragma warning disable 0414
         readonly Remote remote;
-        readonly RemoteSafeHandle handle;
+        readonly RemoteHandle handle;
+        #pragma warning restore 0414
         readonly Lazy<IList<RefSpec>> refspecs;
 
         /// <summary>
@@ -25,7 +28,7 @@ namespace LibGit2Sharp
         protected RefSpecCollection()
         { }
 
-        internal RefSpecCollection(Remote remote, RemoteSafeHandle handle)
+        internal RefSpecCollection(Remote remote, RemoteHandle handle)
         {
             Ensure.ArgumentNotNull(handle, "handle");
 
@@ -35,7 +38,7 @@ namespace LibGit2Sharp
             refspecs = new Lazy<IList<RefSpec>>(() => RetrieveRefSpecs(remote, handle));
         }
 
-        static IList<RefSpec> RetrieveRefSpecs(Remote remote, RemoteSafeHandle remoteHandle)
+        static unsafe IList<RefSpec> RetrieveRefSpecs(Remote remote, RemoteHandle remoteHandle)
         {
             int count = Proxy.git_remote_refspec_count(remoteHandle);
             List<RefSpec> refSpecs = new List<RefSpec>();

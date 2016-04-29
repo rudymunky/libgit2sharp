@@ -12,13 +12,16 @@ namespace LibGit2Sharp
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RefSpec
     {
+        // This is here to keep the pointer alive
+        #pragma warning disable 0414
         readonly Remote remote;
-        readonly GitRefSpecHandle handle;
+        #pragma warning restore 0414
+        readonly IntPtr handle;
 
-        internal RefSpec(Remote remote, GitRefSpecHandle handle)
+        internal unsafe RefSpec(Remote remote, git_refspec* handle)
         {
             this.remote = remote;
-            this.handle = handle;
+            this.handle = new IntPtr(handle);
         }
 
         /// <summary>

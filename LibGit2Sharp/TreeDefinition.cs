@@ -398,7 +398,7 @@ namespace LibGit2Sharp
 
         private class TreeBuilder : IDisposable
         {
-            private readonly TreeBuilderSafeHandle handle;
+            private readonly TreeBuilderHandle handle;
 
             public TreeBuilder(Repository repo)
             {

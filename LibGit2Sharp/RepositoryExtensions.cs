@@ -205,6 +205,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
+        [Obsolete("This method is deprecated. Please us the LibGit2Sharp.Commands.Fetch class")]
         public static void Fetch(this IRepository repository, string remoteName)
         {
             repository.Fetch(remoteName, null);
@@ -216,13 +217,16 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="remoteName">The name of the <see cref="Remote"/> to fetch from.</param>
         /// <param name="options"><see cref="FetchOptions"/> controlling fetch behavior</param>
+        [Obsolete("This method is deprecated. Please us the LibGit2Sharp.Commands.Fetch class")]
         public static void Fetch(this IRepository repository, string remoteName, FetchOptions options)
         {
             Ensure.ArgumentNotNull(repository, "repository");
             Ensure.ArgumentNotNullOrEmptyString(remoteName, "remoteName");
 
-            Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true);
-            repository.Network.Fetch(remote, options);
+            using (Remote remote = repository.Network.Remotes.RemoteForName(remoteName, true))
+            {
+                repository.Network.Fetch(remote, options);
+            }
         }
 
         /// <summary>
@@ -231,6 +235,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="commitOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, string commitOrBranchSpec)
         {
             CheckoutOptions options = new CheckoutOptions();
@@ -247,6 +252,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Branch branch)
         {
             CheckoutOptions options = new CheckoutOptions();
@@ -262,13 +268,14 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="Repository"/> being worked with.</param>
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Commit commit)
         {
             CheckoutOptions options = new CheckoutOptions();
             return repository.Checkout(commit, options);
         }
 
-        internal static string BuildRelativePathFrom(this Repository repo, string path)
+        internal static string BuildRelativePathFrom(this IRepository repo, string path)
         {
             //TODO: To be removed when libgit2 natively implements this
             if (!Path.IsPathRooted(path))
@@ -278,7 +285,7 @@ namespace LibGit2Sharp
 
             string normalizedPath = Path.GetFullPath(path);
 
-            if (!repo.PathStartsWith(normalizedPath, repo.Info.WorkingDirectory))
+            if (!PathStartsWith(repo, normalizedPath, repo.Info.WorkingDirectory))
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                                                           "Unable to process file '{0}'. This file is not located under the working directory of the repository ('{1}').",
@@ -287,6 +294,12 @@ namespace LibGit2Sharp
             }
 
             return normalizedPath.Substring(repo.Info.WorkingDirectory.Length);
+        }
+
+        internal static bool PathStartsWith(IRepository repository, string path, string value)
+        {
+            var pathCase = new PathCase(repository);
+            return pathCase.StartsWith(path, value);
         }
 
         private static ObjectId DereferenceToCommit(Repository repo, string identifier)
@@ -442,6 +455,7 @@ namespace LibGit2Sharp
         /// <param name="branch">The <see cref="Branch"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Branch branch, CheckoutOptions options)
         {
             return repository.Checkout(branch, options);
@@ -457,6 +471,7 @@ namespace LibGit2Sharp
         /// <param name="commit">The <see cref="LibGit2Sharp.Commit"/> to check out.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, Commit commit, CheckoutOptions options)
         {
             return repository.Checkout(commit, options);
@@ -473,6 +488,7 @@ namespace LibGit2Sharp
         /// <param name="committishOrBranchSpec">A revparse spec for the commit or branch to checkout.</param>
         /// <param name="options"><see cref="CheckoutOptions"/> controlling checkout behavior.</param>
         /// <returns>The <see cref="Branch"/> that was checked out.</returns>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Checkout()")]
         public static Branch Checkout(this IRepository repository, string committishOrBranchSpec, CheckoutOptions options)
         {
             return repository.Checkout(committishOrBranchSpec, options);
@@ -556,6 +572,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public static void Stage(this IRepository repository, string path)
         {
             repository.Stage(path, null);
@@ -566,6 +583,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Stage()")]
         public static void Stage(this IRepository repository, IEnumerable<string> paths)
         {
             repository.Stage(paths, null);
@@ -576,6 +594,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public static void Unstage(this IRepository repository, string path)
         {
             repository.Unstage(path, null);
@@ -586,6 +605,7 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Unstage()")]
         public static void Unstage(this IRepository repository, IEnumerable<string> paths)
         {
             repository.Unstage(paths, null);
@@ -603,9 +623,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, string path)
         {
-            repository.Remove(path, true, null);
+            Commands.Remove(repository, path, true, null);
         }
 
         /// <summary>
@@ -621,9 +642,10 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="path">The path of the file within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the file from the working directory, False otherwise.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, string path, bool removeFromWorkingDirectory)
         {
-            repository.Remove(path, removeFromWorkingDirectory, null);
+            Commands.Remove(repository, path, removeFromWorkingDirectory, null);
         }
 
         /// <summary>
@@ -638,9 +660,10 @@ namespace LibGit2Sharp
         /// </summary>
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, IEnumerable<string> paths)
         {
-            repository.Remove(paths, true, null);
+            Commands.Remove(repository, paths, true, null);
         }
 
         /// <summary>
@@ -656,6 +679,7 @@ namespace LibGit2Sharp
         /// <param name="repository">The <see cref="IRepository"/> being worked with.</param>
         /// <param name="paths">The collection of paths of the files within the working directory.</param>
         /// <param name="removeFromWorkingDirectory">True to remove the files from the working directory, False otherwise.</param>
+        [Obsolete("This method is deprecated. Please use LibGit2Sharp.Commands.Remove")]
         public static void Remove(this IRepository repository, IEnumerable<string> paths, bool removeFromWorkingDirectory)
         {
             repository.Remove(paths, removeFromWorkingDirectory, null);
